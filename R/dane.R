@@ -44,6 +44,19 @@ nazwy = function(..., poziomo = TRUE) {
     return(rownames(...))
 }
 
+
+#' @title Znajduje indeksy spełniające warunek
+#' @description Funkcja zwraca indeksy elementów wektora spełniających podany warunek.
+#' @param ... Warunek do sprawdzenia.
+#' @return Wektor z indeksami spełniającymi warunek.
+#' @examples
+#' # Utwórz wektor
+#' v <- c(1, 2, 3, 4, 5)
+#' # Znajdź indeksy elementów większych od 3
+#' które(v > 3)
+#' @export
+które = which
+
 #' @title Ustawia nazwy wierszy lub kolumn
 #' @description Funkcja ustawia nazwy wierszy lub kolumn ramki danych.
 #' @param x Ramka danych, której nazwy mają być ustawione.

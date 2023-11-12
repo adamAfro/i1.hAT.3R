@@ -4,7 +4,7 @@
 \alias{nazwy<-}
 \title{Ustawia nazwy wierszy lub kolumn}
 \usage{
-nazwy(x, poziomo = FALSE) <- value
+nazwy(x, poziomo = TRUE) <- value
 }
 \arguments{
 \item{x}{Ramka danych, której nazwy mają być ustawione.}
