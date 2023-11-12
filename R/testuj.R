@@ -49,7 +49,7 @@ testuj_liniowość <- function(model, testy = c("Rainbow", "RESET", "Harvey-Coll
 #' @param testy Wektor nazw testów do wykonania. Domyślnie wykonuje wszystkie dostępne testy.
 #' @return Ramka danych z wartościami statystyk testowych i wartościami p dla każdego wykonanego testu.
 #' @export
-testuj_normalność <- function(próbka, testy = c("Shapiro-Wilk", "Anderson-Darling", "Lilliefors", "Jarque-Bera", "D'Agostino", "Craméra-von Mises", "Kolmogorov-Smirnov")) {
+testuj_normalność <- function(próbka, testy = c("Shapiro-Wilk", "Anderson-Darling", "Lilliefors", "Jarque-Bera", "D'Agostino", "Kolmogorov-Smirnov")) {
 
     wyniki = data.frame()
     nazwy = c()
@@ -82,12 +82,6 @@ testuj_normalność <- function(próbka, testy = c("Shapiro-Wilk", "Anderson-Dar
         test = moments::agostino.test(próbka)
         wyniki = rbind(wyniki, c(test$statistic, test$p.value))
         nazwy = c(nazwy, "D'Agostino")
-    }
-
-    if ("Craméra-von Mises" %in% testy) {
-        test = cramer::cvm.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Craméra-von Mises")
     }
 
     if ("Kolmogorov-Smirnov" %in% testy) {
@@ -155,7 +149,7 @@ testuj_autokorelacja <- function(model, testy = c("Durbin-Watson", "Breusch-Godf
 #' @param testy Wektor tekstowy z nazwami testów do wykonania. Domyślnie są to wszystkie dostępne testy.
 #' @return Ramka danych z wynikami testów. Kolumny to: "statystyka", "p". Wiersze to nazwy wykonanych testów.
 #' @export
-testuj_homoskedastyczność <- function(model, testy = c("Breusch-Pagan", "White", "Goldfeld-Quandt")) {
+testuj_homoskedastyczność <- function(model, testy = c("Breusch-Pagan", "Goldfeld-Quandt")) {
 
     wyniki = data.frame()
     nazwy = c()
@@ -166,11 +160,7 @@ testuj_homoskedastyczność <- function(model, testy = c("Breusch-Pagan", "White
         nazwy = c(nazwy, "Breusch-Pagan")
     }
 
-    if ("White" %in% testy) {
-        test = whitestrap::white.test(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "White")
-    }
+    # TODO White
 
     if ("Goldfeld-Quandt" %in% testy) {
         test = lmtest::gqtest(model)

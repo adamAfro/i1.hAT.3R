@@ -7,7 +7,7 @@
 testuj_normalność(
   próbka,
   testy = c("Shapiro-Wilk", "Anderson-Darling", "Lilliefors", "Jarque-Bera",
-    "D'Agostino", "Craméra-von Mises", "Kolmogorov-Smirnov")
+    "D'Agostino", "Kolmogorov-Smirnov")
 )
 }
 \arguments{

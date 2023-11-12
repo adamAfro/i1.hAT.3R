@@ -4,10 +4,7 @@
 \alias{testuj_homoskedastyczność}
 \title{Testy homoskedastyczności}
 \usage{
-testuj_homoskedastyczność(
-  model,
-  testy = c("Breusch-Pagan", "White", "Goldfeld-Quandt")
-)
+testuj_homoskedastyczność(model, testy = c("Breusch-Pagan", "Goldfeld-Quandt"))
 }
 \arguments{
 \item{model}{Model liniowy, na którym mają być wykonane testy.}
