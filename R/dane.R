@@ -44,6 +44,26 @@ nazwy = function(..., poziomo = TRUE) {
     return(rownames(...))
 }
 
+#' @title Ustawia nazwy wierszy lub kolumn
+#' @description Funkcja ustawia nazwy wierszy lub kolumn ramki danych.
+#' @param x Ramka danych, której nazwy mają być ustawione.
+#' @param value Wektor z nowymi nazwami.
+#' @param poziomo Czy mają być ustawione nazwy kolumn. Domyślnie FALSE.
+#' @return Ramka danych z ustawionymi nazwami.
+#' @examples
+#' # Utwórz ramkę danych
+#' df <- data.frame(a = 1:3, b = c("A", "B", "C"))
+#' # Ustaw nazwy kolumn
+#' nazwy(df, poziomo = TRUE) <- c("nowa_a", "nowa_b")
+#' @export
+`nazwy<-` <- function(x, value, poziomo = TRUE) {
+  if (poziomo)
+    colnames(x) <- value
+  else
+    rownames(x) <- value
+  x
+}
+
 #' @title Wczytuje dane z pliku CSV
 #' @description Funkcja wczytuje dane z pliku CSV i zwraca ramkę danych.
 #' @param file Nazwa pliku CSV do wczytania.
