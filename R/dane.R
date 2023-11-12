@@ -6,7 +6,43 @@
 #' # Utwórz ramkę danych z wektorami
 #' df <- zramkuj(a = 1:3, b = c("A", "B", "C"))
 #' @export
-zramkuj <- function(...) data.frame(..., check.names = FALSE)
+ramka <- function(...) data.frame(..., check.names = FALSE)
+
+#' @title Dodaje ramki danych
+#' @description Funkcja dodaje ramki danych w pionie lub w poziomie.
+#' @param ... Ramki danych do dodania.
+#' @param poziomo Czy ramki danych mają być dodane w poziomie. Domyślnie FALSE.
+#' @return Ramka danych zawierająca dodane ramki danych.
+#' @examples
+#' # Utwórz dwie ramki danych
+#' df1 <- data.frame(a = 1:3, b = c("A", "B", "C"))
+#' df2 <- data.frame(a = 4:6, b = c("D", "E", "F"))
+#' # Dodaj ramki danych w pionie
+#' df <- dodaj(df1, df2)
+#' @export
+połącz <- function(..., poziomo = FALSE) {
+  if (poziomo)
+    return(cbind(...))
+  else
+    return(rbind(...))
+}
+
+#' @title Pobiera nazwy wierszy lub kolumn
+#' @description Funkcja zwraca nazwy wierszy lub kolumn ramki danych.
+#' @param poziomo Czy mają być zwrócone nazwy kolumn. Domyślnie FALSE.
+#' @return Wektor z nazwami wierszy lub kolumn.
+#' @examples
+#' # Utwórz ramkę danych
+#' df <- data.frame(a = 1:3, b = c("A", "B", "C"))
+#' # Pobierz nazwy kolumn
+#' nazwy(df, poziomo = TRUE)
+#' @export
+nazwy = function(..., poziomo = TRUE) {
+  if (poziomo)
+    return(names(...))
+  else
+    return(rownames(...))
+}
 
 #' @title Wczytuje dane z pliku CSV
 #' @description Funkcja wczytuje dane z pliku CSV i zwraca ramkę danych.

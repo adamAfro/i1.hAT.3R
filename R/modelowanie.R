@@ -92,21 +92,21 @@ liniowość <- function(model, testy = c("Rainbow", "RESET", "Harvey-Collier")) 
 
     if ("Rainbow" %in% testy) {
 
-        test = raintest(model)
+        test = lmtest::raintest(model)
         wyniki = rbind(wyniki, c(test$statistic, test$parameter[1], test$parameter[2], test$p.value))
         nazwy = c(nazwy, "Rainbow")
     }
 
     if ("RESET" %in% testy) {
 
-        test = resettest(model)
+        test = lmtest::resettest(model)
         wyniki = rbind(wyniki, c(test$statistic, test$parameter[1], test$parameter[2], test$p.value))
         nazwy = c(nazwy, "RESET")
     }
 
     if ("Harvey-Collier" %in% testy) {
         
-        test = harvtest(model)
+        test = lmtest::harvtest(model)
         wyniki = rbind(wyniki, c(test$statistic, test$parameter[1], NA               , test$p.value))
         nazwy = c(nazwy, "Harvey-Collier")
     }
@@ -143,7 +143,7 @@ normalność <- function(próbka, testy = c("Shapiro-Wilk", "Anderson-Darling", 
     nazwy = c()
 
     if ("Shapiro-Wilk" %in% testy) {
-        test = shapiro.test(próbka)
+        test = stats::shapiro.test(próbka)
         wyniki = rbind(wyniki, c(test$statistic, test$p.value))
         nazwy = c(nazwy, "Shapiro-Wilk")
     }
@@ -179,7 +179,7 @@ normalność <- function(próbka, testy = c("Shapiro-Wilk", "Anderson-Darling", 
     }
 
     if ("Kolmogorov-Smirnov" %in% testy) {
-        test = ks.test(próbka, "pnorm", mean(próbka), sd(próbka))
+        test = stats::ks.test(próbka, "pnorm", mean(próbka), sd(próbka))
         wyniki = rbind(wyniki, c(test$statistic, test$p.value))
         nazwy = c(nazwy, "Kolmogorov-Smirnov")
     }
@@ -255,7 +255,7 @@ homoskedastyczność <- function(model, testy = c("Breusch-Pagan", "White", "Gol
     }
 
     if ("White" %in% testy) {
-        test = bstats::white.test(model)
+        test = whitestrap::white.test(model)
         wyniki = rbind(wyniki, c(test$statistic, test$p.value))
         nazwy = c(nazwy, "White")
     }
@@ -300,9 +300,83 @@ diagnoza <- function(model, x = "Empiryczne", y = "Dopasowane") {
             return(sqrt(abs(rstandard(model))))
     }
 
-    p = ggplot(data.frame(x = v(xnazwa), y = v(ynazwa)), aes(x = x, y = y)) +
-        geom_point() + geom_smooth(formula = "y ~ x", method = "loess") +
-        theme_minimal() + labs(x = xnazwa, y = ynazwa)
+    p = ggplot2::ggplot(data.frame(x = v(xnazwa), y = v(ynazwa)), ggplot2::aes(x = x, y = y)) +
+        ggplot2::geom_point() + ggplot2::geom_smooth(formula = "y ~ x", method = "loess") +
+        ggplot2::theme_minimal() + ggplot2::labs(x = xnazwa, y = ynazwa)
 
     return(p)
 }
+
+#' @title Statystyki próbki
+#' @description Funkcja oblicza podstawowe statystyki dla podanej próbki.
+#' @param próbka Wektor danych, dla których mają być obliczone statystyki.
+#' @return Ramka danych z obliczonymi statystykami.
+#' @export
+statystyki <- function(próbka) {
+
+    kwartyle = quantile(próbka)
+
+    return(data.frame(
+
+        minimum = min(próbka),
+        Q1 = kwartyle[[2]],
+        mediana = median(próbka),
+        średnia = mean(próbka),
+        Q3 = kwartyle[[4]],
+        maksimum = max(próbka),
+        rozstęp = max(próbka) - min(próbka),
+
+        odchylenie = sd(próbka),
+        wariancja = var(próbka),
+        kurtoza = moments::kurtosis(próbka),
+        skośność = moments::skewness(próbka),
+        zmienność = sd(próbka) / mean(próbka)
+    ))
+}
+
+#' @title Podgląd próbki
+#' @description Funkcja tworzy histogram i boxplot dla podanej próbki.
+#' @param próbka Wektor danych, dla których mają być stworzone wykresy.
+#' @param słupki Liczba słupków w histogramie. Domyślnie 10.
+#' @param y Etykieta dla osi y. Domyślnie "Wartość".
+#' @param gęstość Czy dodać krzywą gęstości do histogramu. Domyślnie FALSE.
+#' @return Wykres ggplot z histogramem i boxplotem.
+#' @export
+podgląd <- function(próbka, słupki = 10, y = "Wartość", gęstość = FALSE, tytuł = "Wgląd w próbkę") {
+
+    df <- data.frame(y = próbka, typ = c(rep("Histogram", length(próbka)), rep("Boxplot", length(próbka))))
+
+    if (gęstość)
+        p1 <- ggplot2::ggplot(df[df$typ == "Histogram",], ggplot2::aes(x = y)) + 
+            ggplot2::geom_histogram(ggplot2::aes(y = ..density..), color="black", fill="white", bins = słupki, boundary = 0) +
+            ggplot2::geom_density(alpha = .2, fill="black") +
+            ggplot2::geom_vline(ggplot2::aes(xintercept=mean(y)), linetype="dashed") +
+            ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0)) +
+            ggplot2::xlab(y) + ggplot2::ylab("Prawdopodobieństwo")
+    else
+        p1 <- ggplot2::ggplot(df[df$typ == "Histogram",], ggplot2::aes(x = y)) + 
+            ggplot2::geom_histogram(color="black", fill="white", bins = słupki, boundary = 0) +
+            ggplot2::geom_vline(ggplot2::aes(xintercept=mean(y)), linetype="dashed") +
+            ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0)) +
+            ggplot2::xlab(y) + ggplot2::ylab("Liczebność")
+    
+    p2 <- ggplot2::ggplot(df[df$typ == "Boxplot",], ggplot2::aes(x = y)) + 
+        ggplot2::geom_boxplot() +
+        ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.ticks.y = ggplot2::element_blank())+
+        ggplot2::xlab(y) + ggplot2::ggtitle(tytuł)
+    
+    p = patchwork::wrap_plots(p2, p1) + patchwork::plot_layout(heights = c(1, 3))
+
+    return(p)
+}
+
+#' @title Siatka wykresów
+#' @description Funkcja tworzy siatkę wykresów na podstawie podanych wykresów.
+#' @param ... Wykresy do umieszczenia w siatce.
+#' @param kolumny Liczba wierszy w siatce. Domyślnie NULL.
+#' @param rzędy Liczba kolumn w siatce. Domyślnie NULL.
+#' @return Siatka wykresów.
+#' @export
+siatka = function(..., kolumny = NULL, rzędy = NULL) patchwork::wrap_plots(..., ncol = kolumny, nrow = rzędy)
