@@ -6,7 +6,7 @@
 #' # Utwórz model liniowy na podstawie zestawu danych mtcars
 #' model <- zamodeluj(mpg ~ ., data = mtcars)
 #' @export
-zamodeluj <- function(...) lm(...)
+modeluj <- function(...) lm(...)
 
 #' @title Ocena modelu liniowego
 #' @description Funkcja ocenia model liniowy, obliczając różne statystyki, takie jak R^2, skorygowane R^2, p-wartość dla statystyki F, AIC i BIC.
@@ -18,7 +18,7 @@ zamodeluj <- function(...) lm(...)
 #' # Oceń model
 #' wyniki <- ocena(model)
 #' @export
-ocena <- function(model) {
+oceń <- function(model) {
 
     ynazwa = as.character(formula(model))[2]
     y = model$model[,ynazwa]
@@ -52,7 +52,7 @@ ocena <- function(model) {
 #' # Pobierz parametry modelu
 #' parametry_modelu <- parametry(model)
 #' @export
-parametry <- function(model) {
+parametryzuj <- function(model) {
     wyniki <- summary(model)$coefficients
     df <- data.frame()
     for (i in 1:nrow(wyniki)) {
@@ -72,205 +72,9 @@ parametry <- function(model) {
 #' # Pobierz rezydua modelu
 #' rezydua_modelu <- rezydua(model)
 #' @export
-rezydua <- residuals
-
-odstające <- function(dane) {
-
-}
-
-#' @title Testy założenia liniowości
-#' @description Funkcja wykonuje testy liniowości na podanym modelu. Dostępne testy to: "Rainbow", "RESET" i "Harvey-Collier", patrz `lmtest`.
-#' @param model Model liniowy, na którym mają być wykonane testy.
-#' @param testy Wektor tekstowy z nazwami testów do wykonania. Domyślnie są to wszystkie dostępne testy.
-#' @return Ramka danych z wynikami testów. Kolumny to: "statystyka", "st. swobody \[1\]", "st. swobody \[2\]" nie dotyczy Harv.-Coll., "p". Wiersze to nazwy wykonanych testów.
-#' @export
-liniowość <- function(model, testy = c("Rainbow", "RESET", "Harvey-Collier")) {
-
-    wyniki = data.frame()
-    
-    nazwy = c()
-
-    if ("Rainbow" %in% testy) {
-
-        test = lmtest::raintest(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$parameter[1], test$parameter[2], test$p.value))
-        nazwy = c(nazwy, "Rainbow")
-    }
-
-    if ("RESET" %in% testy) {
-
-        test = lmtest::resettest(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$parameter[1], test$parameter[2], test$p.value))
-        nazwy = c(nazwy, "RESET")
-    }
-
-    if ("Harvey-Collier" %in% testy) {
-        
-        test = lmtest::harvtest(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$parameter[1], NA               , test$p.value))
-        nazwy = c(nazwy, "Harvey-Collier")
-    }
-
-    colnames(wyniki) = c("statystyka", "st. swobody [1]",  "st. swobody [2]", "p")
-    rownames(wyniki) = nazwy
-        
-    return(wyniki)
-}
-
-#' @title Diagnostyka inflacji wariancji
-#' @description Funkcja oblicza współczynniki inflacji wariancji (VIF) dla modelu.
-#' @param dane Model liniowy, dla którego mają być obliczone współczynniki VIF.
-#' @return Ramka danych z wartościami VIF dla każdej zmiennej w modelu.
-#' @export
-inflacja <- function(dane) {
-
-    wyniki = t(data.frame(car::vif(modele[[1]])))
-    rownames(wyniki) = NULL
-
-    return(wyniki)
-}
+resztkuj <- residuals
 
 
-#' @title Testy normalności
-#' @description Funkcja wykonuje wybrane testy normalności na podanej próbce.
-#' @param próbka Wektor danych, na których mają być wykonane testy.
-#' @param testy Wektor nazw testów do wykonania. Domyślnie wykonuje wszystkie dostępne testy.
-#' @return Ramka danych z wartościami statystyk testowych i wartościami p dla każdego wykonanego testu.
-#' @export
-normalność <- function(próbka, testy = c("Shapiro-Wilk", "Anderson-Darling", "Lilliefors", "Jarque-Bera", "D'Agostino", "Craméra-von Mises", "Kolmogorov-Smirnov")) {
-
-    wyniki = data.frame()
-    nazwy = c()
-
-    if ("Shapiro-Wilk" %in% testy) {
-        test = stats::shapiro.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Shapiro-Wilk")
-    }
-
-    if ("Anderson-Darling" %in% testy) {
-        test = nortest::ad.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Anderson-Darling")
-    }
-
-    if ("Lilliefors" %in% testy) {
-        test = nortest::lillie.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Lilliefors")
-    }
-
-    if ("Jarque-Bera" %in% testy) {
-        test = tseries::jarque.bera.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Jarque-Bera")
-    }
-
-    if ("D'Agostino" %in% testy) {
-        test = moments::agostino.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "D'Agostino")
-    }
-
-    if ("Craméra-von Mises" %in% testy) {
-        test = cramer::cvm.test(próbka)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Craméra-von Mises")
-    }
-
-    if ("Kolmogorov-Smirnov" %in% testy) {
-        test = stats::ks.test(próbka, "pnorm", mean(próbka), sd(próbka))
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Kolmogorov-Smirnov")
-    }
-
-    colnames(wyniki) = c("statystyka", "p")
-    rownames(wyniki) = nazwy
-
-    return(wyniki)
-}
-
-#' @title Testy autokorelacji
-#' @description Funkcja wykonuje testy autokorelacji na podanym modelu. Dostępne testy to: "Durbin-Watson" i "Breusch-Godfrey".
-#' @param model Model liniowy, na którym mają być wykonane testy.
-#' @param testy Wektor tekstowy z nazwami testów do wykonania. Domyślnie są to wszystkie dostępne testy.
-#' @param rząd Określa rząd autokorelacji do testowania w teście Breusch-Godfrey. Domyślnie jest to 1.
-#' @param maksymalny Określa maksymalny rząd autokorelacji do testowania w teście Breusch-Godfrey. Domyślnie jest to 1.
-#' @return Ramka danych z wynikami testów. Kolumny to: "statystyka", "p". Wiersze to nazwy wykonanych testów.
-#' @examples
-#' # Utwórz model liniowy na podstawie zestawu danych mtcars
-#' model <- lm(mpg ~ ., data = mtcars)
-#' # Wykonaj testy autokorelacji
-#' wyniki_autokorelacji <- autokorelacja(model)
-#' @export
-autokorelacja <- function(model, testy = c("Durbin-Watson", "Breusch-Godfrey"), rząd = 1, maksymalny = 1) {
-
-    wyniki = data.frame()
-    nazwy = c()
-
-    if ("Durbin-Watson" %in% testy) {
-        test = lmtest::dwtest(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Durbin-Watson")
-    }
-
-    if ("Breusch-Godfrey" %in% testy) {
-
-        test = lmtest::bgtest(model, order = rząd)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, paste("Breusch-Godfrey", "rz.", rząd))
-
-        if (rząd + 1 <= maksymalny) {
-
-            for (i in (rząd + 1):maksymalny) {
-                
-                test = lmtest::bgtest(model, order = i)
-                wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-                nazwy = c(nazwy, paste("Breusch-Godfrey", "rz.", i))
-            }
-        }
-    }
-
-    colnames(wyniki) = c("statystyka", "p")
-    rownames(wyniki) = nazwy
-
-    return(wyniki)
-}
-
-#' @title Testy homoskedastyczności
-#' @description Funkcja wykonuje testy homoskedastyczności na podanym modelu. Dostępne testy to: "Breusch-Pagan", "White" i "Goldfeld-Quandt".
-#' @param model Model liniowy, na którym mają być wykonane testy.
-#' @param testy Wektor tekstowy z nazwami testów do wykonania. Domyślnie są to wszystkie dostępne testy.
-#' @return Ramka danych z wynikami testów. Kolumny to: "statystyka", "p". Wiersze to nazwy wykonanych testów.
-#' @export
-homoskedastyczność <- function(model, testy = c("Breusch-Pagan", "White", "Goldfeld-Quandt")) {
-
-    wyniki = data.frame()
-    nazwy = c()
-
-    if ("Breusch-Pagan" %in% testy) {
-        test = lmtest::bptest(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Breusch-Pagan")
-    }
-
-    if ("White" %in% testy) {
-        test = whitestrap::white.test(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "White")
-    }
-
-    if ("Goldfeld-Quandt" %in% testy) {
-        test = lmtest::gqtest(model)
-        wyniki = rbind(wyniki, c(test$statistic, test$p.value))
-        nazwy = c(nazwy, "Goldfeld-Quandt")
-    }
-
-    colnames(wyniki) = c("statystyka", "p")
-    rownames(wyniki) = nazwy
-
-    return(wyniki)
-}
 
 #' @title Diagnostyka modelu
 #' @description Funkcja tworzy wykres punktowy i krzywą wygładzaną dla dwóch zmiennych z modelu.
@@ -279,7 +83,7 @@ homoskedastyczność <- function(model, testy = c("Breusch-Pagan", "White", "Gol
 #' @param y Nazwa zmiennej, która ma być na osi y. Może to być "Empiryczne", "Dopasowane", "Reszty", "Standryzowane reszty" lub "Spierwiastkowane standryzowane reszty". Domyślnie "Dopasowane".
 #' @return Wykres ggplot z punktami danych i krzywą wygładzaną.
 #' @export
-diagnoza <- function(model, x = "Empiryczne", y = "Dopasowane") {
+rysuj_diagnoza <- function(model, x = "Empiryczne", y = "Dopasowane") {
 
     xnazwa = x
     ynazwa = y
@@ -312,7 +116,7 @@ diagnoza <- function(model, x = "Empiryczne", y = "Dopasowane") {
 #' @param próbka Wektor danych, dla których mają być obliczone statystyki.
 #' @return Ramka danych z obliczonymi statystykami.
 #' @export
-statystyki <- function(próbka) {
+oblicz_statystyki <- function(próbka) {
 
     kwartyle = quantile(próbka)
 
@@ -334,49 +138,15 @@ statystyki <- function(próbka) {
     ))
 }
 
-#' @title Podgląd próbki
-#' @description Funkcja tworzy histogram i boxplot dla podanej próbki.
-#' @param próbka Wektor danych, dla których mają być stworzone wykresy.
-#' @param słupki Liczba słupków w histogramie. Domyślnie 10.
-#' @param y Etykieta dla osi y. Domyślnie "Wartość".
-#' @param gęstość Czy dodać krzywą gęstości do histogramu. Domyślnie FALSE.
-#' @return Wykres ggplot z histogramem i boxplotem.
+#' @title Diagnostyka inflacji wariancji
+#' @description Funkcja oblicza współczynniki inflacji wariancji (VIF) dla modelu.
+#' @param model Model liniowy, dla którego mają być obliczone współczynniki VIF.
+#' @return Ramka danych z wartościami VIF dla każdej zmiennej w modelu.
 #' @export
-podgląd <- function(próbka, słupki = 10, y = "Wartość", gęstość = FALSE, tytuł = "Wgląd w próbkę") {
+oblicz_inflacja <- function(model) {
 
-    df <- data.frame(y = próbka, typ = c(rep("Histogram", length(próbka)), rep("Boxplot", length(próbka))))
+    wyniki = t(data.frame(car::vif(model)))
+    rownames(wyniki) = NULL
 
-    if (gęstość)
-        p1 <- ggplot2::ggplot(df[df$typ == "Histogram",], ggplot2::aes(x = y)) + 
-            ggplot2::geom_histogram(ggplot2::aes(y = ..density..), color="black", fill="white", bins = słupki, boundary = 0) +
-            ggplot2::geom_density(alpha = .2, fill="black") +
-            ggplot2::geom_vline(ggplot2::aes(xintercept=mean(y)), linetype="dashed") +
-            ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0)) +
-            ggplot2::xlab(y) + ggplot2::ylab("Prawdopodobieństwo")
-    else
-        p1 <- ggplot2::ggplot(df[df$typ == "Histogram",], ggplot2::aes(x = y)) + 
-            ggplot2::geom_histogram(color="black", fill="white", bins = słupki, boundary = 0) +
-            ggplot2::geom_vline(ggplot2::aes(xintercept=mean(y)), linetype="dashed") +
-            ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0)) +
-            ggplot2::xlab(y) + ggplot2::ylab("Liczebność")
-    
-    p2 <- ggplot2::ggplot(df[df$typ == "Boxplot",], ggplot2::aes(x = y)) + 
-        ggplot2::geom_boxplot() +
-        ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0),
-                   axis.text.y = ggplot2::element_blank(),
-                   axis.ticks.y = ggplot2::element_blank())+
-        ggplot2::xlab(y) + ggplot2::ggtitle(tytuł)
-    
-    p = patchwork::wrap_plots(p2, p1) + patchwork::plot_layout(heights = c(1, 3))
-
-    return(p)
+    return(wyniki)
 }
-
-#' @title Siatka wykresów
-#' @description Funkcja tworzy siatkę wykresów na podstawie podanych wykresów.
-#' @param ... Wykresy do umieszczenia w siatce.
-#' @param kolumny Liczba wierszy w siatce. Domyślnie NULL.
-#' @param rzędy Liczba kolumn w siatce. Domyślnie NULL.
-#' @return Siatka wykresów.
-#' @export
-siatka = function(..., kolumny = NULL, rzędy = NULL) patchwork::wrap_plots(..., ncol = kolumny, nrow = rzędy)
