@@ -34,7 +34,7 @@ oceń <- function(model) {
         "MAE" = Metrics::mae(y, model$fitted.values),
         "RMSE" = Metrics::rmse(y, model$fitted.values),
         "MSE" = Metrics::mse(y, model$fitted.values),
-        "PRESS" = sum( (  (modele[[3]]$residuals)  /  (1 - stats::lm.influence(modele[[3]])$hat)  )^2 ) # TODO poprawić
+        "PRESS" = sum( (  (model$residuals)  /  (1 - stats::lm.influence(model)$hat)  )^2 ) # TODO poprawić
     )
 
     rownames(wyniki) = NULL
